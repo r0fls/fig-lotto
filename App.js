@@ -1,15 +1,35 @@
+import './global';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import Web3 from 'web3';
 
 export default class App extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      block: 0,
+      timestamp: 0
+    };
+  }
+
   render() {
     return (
       <View style={styles.container}>
-        <Text>Open up App.js to start working on your app!</Text>
-        <Text>Changes you make will automatically reload.</Text>
-        <Text>Shake your phone to open the developer menu.</Text>
+        <Text></Text>
+        <Text>The latest block number is: {this.state.block}</Text>
+        <Text>The latest block's timestamp is: {this.state.timestamp}</Text>
       </View>
     );
+  }
+
+  componentWillMount() {
+    const web3 = new Web3(
+      new Web3.providers.HttpProvider('https://rinkeby.infura.io/')
+    );
+
+    web3.eth.getBlock('latest').then(latestBlock =>
+      this.setState({ block: latestBlock.number, timestamp: latestBlock.timestamp }));
   }
 }
 
