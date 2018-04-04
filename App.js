@@ -24,22 +24,14 @@ export default class App extends React.Component {
     this.bet = this.bet.bind(this);
   }
 
-  componentDidMount() {
-    this.web3.eth.getBalance(this.account.address)
-      .then(balance =>
-        this.setState({ balance: Number(balance / 1000000000000000000).toFixed(2) })
-      );
+  async componentDidMount() {
+    balanceInWei = await this.web3.eth.getBalance(this.account.address);
+    balance = this.web3.utils.fromWei(balanceInWei, 'ether');
+    figWallet = await this.fig.methods.wallets(this.account.address).call();
+    betCount = await this.fig.methods.playerbets(this.account.address).call();
 
-    this.fig.methods.wallets(this.account.address).call().
-    then(figWallet =>
-      this.setState({figBalance:figWallet.balance})
-    );
-
-    this.fig.methods.playerbets(this.account.address).call()
-      .then(betCount =>
-        this.setState({ betCount:betCount })
-      );
-  };
+    this.setState({balance:balance, figBalance:figWallet.balance, betCount:betCount});
+  }
 
   async bet() {
     this.setState({ loading: true });
@@ -47,6 +39,7 @@ export default class App extends React.Component {
     receipt = await this.fig.methods.bet(14, 1231231).send({from: this.account.address, gas:betGas});
     betCount = await this.fig.methods.playerbets(this.account.address).call();
     figWallet = await this.fig.methods.wallets(this.account.address).call();
+
     this.setState({figBalance:figWallet.balance, betCount:betCount, loading:false});
   }
 
